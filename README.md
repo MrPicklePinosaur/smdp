@@ -29,7 +29,7 @@ Now download and install mdp:
 - On Ubuntu, you can use the existing [DEB package](https://launchpad.net/ubuntu/+source/mdp-src), or run `apt-get install mdp`.
 
 Most terminals support 256 colors only if the TERM variable is
-set correctly. To enjoy mdp's color fading feature:
+set correctly:
 
     $ export TERM=xterm-256color
 

@@ -32,10 +32,7 @@ void usage() {
     fprintf(stderr, "%s", "  -d, --debug       enable debug messages on STDERR\n");
     fprintf(stderr, "%s", "                    add it multiple times to increases debug level\n");
     fprintf(stderr, "%s", "  -e, --expand      enable character entity expansion\n");
-    fprintf(stderr, "%s", "  -f, --nofade      disable color fading in 256 color mode\n");
     fprintf(stderr, "%s", "  -h, --help        display this help and exit\n");
-    fprintf(stderr, "%s", "  -i, --invert      swap black and white color\n");
-    fprintf(stderr, "%s", "  -t, --notrans     disable transparency in transparent terminal\n");
     fprintf(stderr, "%s", "  -s, --noslidenum  do not show slide number at the bottom\n");
     fprintf(stderr, "%s", "  -v, --version     display the version number and license\n");
     fprintf(stderr, "%s", "  -x, --noslidemax  show slide number, but not total number of slides\n");
@@ -55,9 +52,6 @@ void version() {
 }
 
 int main(int argc, char *argv[]) {
-    int notrans = 0;   // disable transparency
-    int nofade = 0;    // disable fading
-    int invert = 0;    // invert color (black on white)
     int noexpand = 1;  // disable character entity expansion
     int reload = 0;    // reload page N (0 means no reload)
     int noreload = 1;  // reload disabled until we know input is a file
@@ -68,10 +62,7 @@ int main(int argc, char *argv[]) {
     struct option longopts[] = {
         { "debug",      no_argument, 0, 'd' },
         { "expand",     no_argument, 0, 'e' },
-        { "nofade",     no_argument, 0, 'f' },
         { "help",       no_argument, 0, 'h' },
-        { "invert",     no_argument, 0, 'i' },
-        { "notrans",    no_argument, 0, 't' },
         { "version",    no_argument, 0, 'v' },
         { "noslidenum", no_argument, 0, 's' },
         { "noslidemax", no_argument, 0, 'x' },
@@ -85,10 +76,7 @@ int main(int argc, char *argv[]) {
         switch(opt) {
             case 'd': debug += 1;   break;
             case 'e': noexpand = 0; break;
-            case 'f': nofade = 1;   break;
             case 'h': usage();      break;
-            case 'i': invert = 1;   break;
-            case 't': notrans = 1;  break;
             case 'v': version();    break;
             case 's': slidenum = 0; break;
             case 'x': slidenum = 1; break;
@@ -167,7 +155,7 @@ int main(int argc, char *argv[]) {
             markdown_debug(deck, debug);
         }
 
-        reload = ncurses_display(deck, notrans, nofade, invert, reload, noreload, slidenum, nocodebg);
+        reload = ncurses_display(deck, reload, noreload, slidenum, nocodebg);
 
         free_deck(deck);
 

@@ -1,7 +1,6 @@
 /*
  * Functions necessary to display a deck of slides in different color modes
- * using ncurses. Only white, red, and blue are supported, as they can be
- * faded in 256 color mode.
+ * using ncurses.
  * Copyright (C) 2018 Michael Goehler
  *
  * This file is part of mdp.
@@ -30,39 +29,7 @@
 #include "viewer.h"
 #include "config.h"
 
-// color ramp for fading from black to color
-static short white_ramp[24] = { 16, 232, 233, 234, 235, 236,
-                               237, 238, 239, 240, 241, 242,
-                               244, 245, 246, 247, 248, 249,
-                               250, 251, 252, 253, 254, 255 };
-
-static short blue_ramp[24]  = { 16,  17,  17,  18,  18,  19,
-                                19,  20,  20,  21,  27,  33,
-                                32,  39,  38,  45,  44,  44,
-                                81,  81,  51,  51, 123, 123 };
-
-static short red_ramp[24]   = { 16,  52,  52,  53,  53,  89,
-                                89,  90,  90, 126, 127, 127,
-                               163, 163, 164, 164, 200, 200,
-                               201, 201, 207, 207, 213, 213 };
-
-// color ramp for fading from white to color
-static short white_ramp_invert[24] = { 15, 255, 254, 254, 252, 251,
-                                      250, 249, 248, 247, 246, 245,
-                                      243, 242, 241, 240, 239, 238,
-                                      237, 236, 235, 234, 233, 232};
-
-static short blue_ramp_invert[24]  = { 15, 231, 231, 195, 195, 159,
-                                      159, 123, 123,  87,  51,  44,
-                                       45,  38,  39,  32,  33,  33,
-                                       26,  26,  27,  27,  21,  21};
-
-static short red_ramp_invert[24]   = { 15, 231, 231, 224, 224, 225,
-                                      225, 218, 218, 219, 212, 213,
-                                      206, 207, 201, 200, 199, 199,
-                                      198, 198, 197, 197, 196, 196};
-
-int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum, int nocodebg) {
+int ncurses_display(deck_t *deck, int reload, int noreload, int slidenum, int nocodebg) {
 
     int c = 0;                // char
     int i = 0;                // iterate
@@ -70,8 +37,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     int lc = 0;               // line count
     int sc = 1;               // slide count
     int colors = 0;           // amount of colors supported
-    int fade = 0;             // disable color fading by default
-    int trans = -1;           // enable transparency if term supports it
     int max_lines = 0;        // max lines per slide
     int max_lines_slide = -1; // the slide that has the most lines
     int max_cols = 0;         // max columns per line
@@ -183,70 +148,25 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         start_color();
         use_default_colors();
 
-        // 256 color mode
-        if(COLORS == 256) {
-
-            if(notrans) {
-                if(invert) {
-                    trans = 15; // white in 256 color mode
-                } else {
-                    trans = 16; // black in 256 color mode
-                }
-            }
-
-            if(invert) {
-                init_pair(CP_WHITE, 232, trans);
-                init_pair(CP_BLUE, 21, trans);
-                init_pair(CP_RED, 196, trans);
-                init_pair(CP_BLACK, 15, 232);
-            } else {
-                init_pair(CP_WHITE, 255, trans);
-                init_pair(CP_BLUE, 123, trans);
-                init_pair(CP_RED, 213, trans);
-                init_pair(CP_BLACK, 16, 255);
-            }
-            init_pair(CP_YELLOW, 208, trans);
-
-            // enable color fading
-            if(!nofade)
-                fade = true;
-
-        // 8 color mode
-        } else {
-
-            if(notrans) {
-                if(invert) {
-                    trans = FG_COLOR; // white in 8 color mode
-                } else {
-                    trans = BG_COLOR; // black in 8 color mode
-                }
-            }
-
-            if(invert) {
-                init_pair(CP_WHITE, BG_COLOR, trans);
-                init_pair(CP_BLACK, FG_COLOR, BG_COLOR);
-            } else {
-                init_pair(CP_WHITE, FG_COLOR, trans);
-                init_pair(CP_BLACK, BG_COLOR, FG_COLOR);
-            }
-            init_pair(CP_BLUE, HEADER_COLOR, trans);
-            init_pair(CP_RED, BOLD_COLOR, trans);
-            init_pair(CP_YELLOW, TITLE_COLOR, trans);
-        }
+        init_pair(CP_FG, FG_COLOR, BG_COLOR);
+        init_pair(CP_BG, BG_COLOR, FG_COLOR);
+        init_pair(CP_HEADER, HEADER_COLOR, BG_COLOR);
+        init_pair(CP_BOLD, BOLD_COLOR, BG_COLOR);
+        init_pair(CP_TITLE, TITLE_COLOR, BG_COLOR);
 
         colors = 1;
     }
 
     // set background color for main window
     if(colors)
-        wbkgd(stdscr, COLOR_PAIR(CP_WHITE));
+        wbkgd(stdscr, COLOR_PAIR(CP_FG));
 
     // setup content window
     WINDOW *content = newwin(LINES - bar_top - bar_bottom, COLS, 0 + bar_top, 0);
 
     // set background color of content window
     if(colors)
-        wbkgd(content, COLOR_PAIR(CP_WHITE));
+        wbkgd(content, COLOR_PAIR(CP_FG));
 
     slide = deck->slide;
 
@@ -274,7 +194,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         // set main window text color
         if(colors)
-            wattron(stdscr, COLOR_PAIR(CP_YELLOW));
+            wattron(stdscr, COLOR_PAIR(CP_TITLE));
 
         // setup header
         if(bar_top) {
@@ -361,14 +281,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         // compare virtual screen to physical screen and does the actual updates
         doupdate();
 
-        // fade in
-        if(fade)
-            fade_in(content, trans, colors, invert);
-
-        // re-enable fading after any undefined key press
-        if(COLORS == 256 && !nofade)
-            fade = true;
-
         // wait for user input
         c = getch();
 
@@ -381,7 +293,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                 // show current slide again
                 // but stop one stop bit earlier
                 slide->stop--;
-                fade = false;
             } else {
                 if(slide->prev) {
                     // show previous slide
@@ -390,9 +301,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                     //stop on first bullet point always
                     if(slide->stop > 0)
                         slide->stop = 0;
-                } else {
-                    // do nothing
-                    fade = false;
                 }
             }
         } else if (evaluate_binding(next_slide_binding, c)) {
@@ -401,15 +309,11 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                 // show current slide again
                 // but stop one stop bit later (or at end of slide)
                 slide->stop++;
-                fade = false;
             } else {
                 if(slide->next) {
                     // show next slide
                     slide = slide->next;
                     sc++;
-                } else {
-                    // do nothing
-                    fade = false;
                 }
             }
         } else if (isdigit(c) && c != '0') {
@@ -450,25 +354,13 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                 // reload slide N
                 reload = sc;
                 slide = NULL;
-            } else {
-                // disable fading if reload is not possible
-                fade = false;
             }
         } else if (evaluate_binding(quit_binding, c)) {
             // quit
-            // do not fade out on exit
-            fade = false;
             // do not reload
             reload = 0;
             slide = NULL;
-        } else {
-            // disable fading on undefined key press
-            fade = false;
         }
-
-        // fade out
-        if(fade)
-            fade_out(content, trans, colors, invert);
 
         url_purge();
     }
@@ -525,7 +417,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         // fill rest off line with spaces if we are in a code block
         if(CHECK_BIT(line->bits, IS_CODE) && colors) {
             if(colors && !nocodebg)
-                wattron(window, COLOR_PAIR(CP_BLACK));
+                wattron(window, COLOR_PAIR(CP_BG));
             for(i = getcurx(window) - x; i < max_cols; i++)
                 wprintw(window, "%s", " ");
         }
@@ -613,7 +505,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
         // reverse color for code blocks
         if(colors && !nocodebg)
-            wattron(window, COLOR_PAIR(CP_BLACK));
+            wattron(window, COLOR_PAIR(CP_BG));
 
         // print whole lines
         waddwstr(window, &line->text->value[offset]);
@@ -629,9 +521,9 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
             while(line->text->value[offset] == '>') {
                 // print a reverse color block
                 if(colors) {
-                    wattron(window, COLOR_PAIR(CP_BLACK));
+                    wattron(window, COLOR_PAIR(CP_BG));
                     wprintw(window, "%s", " ");
-                    wattron(window, COLOR_PAIR(CP_WHITE));
+                    wattron(window, COLOR_PAIR(CP_FG));
                     wprintw(window, "%s", " ");
                 } else {
                     wprintw(window, "%s", ">");
@@ -658,7 +550,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
                 // set headline color
                 if(colors)
-                    wattron(window, COLOR_PAIR(CP_BLUE));
+                    wattron(window, COLOR_PAIR(CP_HEADER));
 
                 // enable underline for H1
                 if(CHECK_BIT(line->bits, IS_H1))
@@ -681,16 +573,9 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         }
     }
 
-    // fill rest off line with spaces
-    // we only need this if the color is inverted (e.g. code-blocks),
-    // to ensure the background fades too
-    if(CHECK_BIT(line->bits, IS_CODE))
-        for(i = getcurx(window) - x; i < max_cols; i++)
-            wprintw(window, "%s", " ");
-
     // reset to default color
     if(colors)
-        wattron(window, COLOR_PAIR(CP_WHITE));
+        wattron(window, COLOR_PAIR(CP_FG));
     wattroff(window, A_UNDERLINE);
 }
 
@@ -721,7 +606,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
                     // disable highlight
                     case L'*':
                         if(colors)
-                            wattron(window, COLOR_PAIR(CP_WHITE));
+                            wattron(window, COLOR_PAIR(CP_FG));
                         break;
                     // disable underline
                     case L'_':
@@ -730,7 +615,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
                     // disable inline code
                     case L'`':
                         if(colors)
-                            wattron(window, COLOR_PAIR(CP_WHITE));
+                            wattron(window, COLOR_PAIR(CP_FG));
                         break;
                 }
 
@@ -767,7 +652,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
 
                             // turn higlighting and underlining on
                             if (colors)
-                                wattron(window, COLOR_PAIR(CP_BLUE));
+                                wattron(window, COLOR_PAIR(CP_HEADER));
                             wattron(window, A_UNDERLINE);
 
                             start_link_name = i;
@@ -794,7 +679,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
 
                             // turn highlighting and underlining off
                             wattroff(window, A_UNDERLINE);
-                            wattron(window, COLOR_PAIR(CP_WHITE));
+                            wattron(window, COLOR_PAIR(CP_FG));
 
                         } else {
                             wprintw(window, "[");
@@ -804,7 +689,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
                         // enable highlight
                         case L'*':
                             if(colors)
-                                wattron(window, COLOR_PAIR(CP_RED));
+                                wattron(window, COLOR_PAIR(CP_BOLD));
                             break;
                         // enable underline
                         case L'_':
@@ -813,7 +698,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
                         // enable inline code
                         case L'`':
                             if(colors && !nocodebg)
-                                wattron(window, COLOR_PAIR(CP_BLACK));
+                                wattron(window, COLOR_PAIR(CP_BG));
                             break;
                         // do nothing for backslashes
                     }
@@ -842,7 +727,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
             // disable highlight
             case L'*':
                 if(colors)
-                    wattron(window, COLOR_PAIR(CP_WHITE));
+                    wattron(window, COLOR_PAIR(CP_FG));
                 break;
             // disable underline
             case L'_':
@@ -851,73 +736,13 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
             // disable inline code
             case L'`':
                 if(colors)
-                    wattron(window, COLOR_PAIR(CP_WHITE));
+                    wattron(window, COLOR_PAIR(CP_FG));
                 break;
             // do nothing for backslashes
         }
     }
 
     (stack->delete)(stack);
-}
-
-void fade_out(WINDOW *window, int trans, int colors, int invert) {
-    int i; // increment
-    if(colors && COLORS == 256) {
-        for(i = 22; i >= 0; i--) {
-
-            // dim color pairs
-            if(invert) {
-                init_pair(CP_WHITE, white_ramp_invert[i], trans);
-                init_pair(CP_BLUE, blue_ramp_invert[i], trans);
-                init_pair(CP_RED, red_ramp_invert[i], trans);
-                init_pair(CP_BLACK, 15, white_ramp_invert[i]);
-            } else {
-                init_pair(CP_WHITE, white_ramp[i], trans);
-                init_pair(CP_BLUE, blue_ramp[i], trans);
-                init_pair(CP_RED, red_ramp[i], trans);
-                init_pair(CP_BLACK, 16, white_ramp[i]);
-            }
-
-            // refresh virtual screen with new color
-            wnoutrefresh(window);
-
-            // compare virtual screen to physical screen and does the actual updates
-            doupdate();
-
-            // delay for our eyes to recognize the change
-            usleep(FADE_DELAY);
-        }
-    }
-}
-
-void fade_in(WINDOW *window, int trans, int colors, int invert) {
-    int i; // increment
-    if(colors && COLORS == 256) {
-        for(i = 0; i <= 23; i++) {
-
-            // brighten color pairs
-            if(invert) {
-                init_pair(CP_WHITE, white_ramp_invert[i], trans);
-                init_pair(CP_BLUE, blue_ramp_invert[i], trans);
-                init_pair(CP_RED, red_ramp_invert[i], trans);
-                init_pair(CP_BLACK, 15, white_ramp_invert[i]);
-            } else {
-                init_pair(CP_WHITE, white_ramp[i], trans);
-                init_pair(CP_BLUE, blue_ramp[i], trans);
-                init_pair(CP_RED, red_ramp[i], trans);
-                init_pair(CP_BLACK, 16, white_ramp[i]);
-            }
-
-            // refresh virtual screen with new color
-            wnoutrefresh(window);
-
-            // compare virtual screen to physical screen and does the actual updates
-            doupdate();
-
-            // delay for our eyes to recognize the change
-            usleep(FADE_DELAY);
-        }
-    }
 }
 
 int int_length (int val) {

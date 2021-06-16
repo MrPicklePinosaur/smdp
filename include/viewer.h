@@ -46,17 +46,15 @@
 #include "cstack.h"
 #include "url.h"
 
-#define CP_WHITE  1 // 255
-#define CP_BLUE   2 // 123
-#define CP_RED    3 // 213
-#define CP_YELLOW 4 // 208
-#define CP_BLACK  5 // CP_WHITE with foreground and background swapped
+#define CP_FG     1
+#define CP_HEADER 2
+#define CP_BOLD   3
+#define CP_TITLE  4
+#define CP_BG     5 // CP_FG with foreground and background swapped
 
-int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum, int nocodebg);
+int ncurses_display(deck_t *deck, int reload, int noreload, int slidenum, int nocodebg);
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors, int nocodebg);
 void inline_display(WINDOW *window, const wchar_t *c, const int colors, int nocodebg);
-void fade_out(WINDOW *window, int trans, int colors, int invert);
-void fade_in(WINDOW *window, int trans, int colors, int invert);
 int int_length (int val);
 int get_slide_number(char init);
 void setup_list_strings(void);
