@@ -22,7 +22,7 @@ UNAME_S := $(shell uname -s 2>/dev/null || echo not)
 
 SOURCES = $(sort $(wildcard src/*.c))
 OBJECTS = $(SOURCES:.c=.o)
-TARGET  = mdp
+TARGET  = smdp
 DESTDIR =
 PREFIX  ?= /usr/local
 
@@ -62,7 +62,7 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 	install -d $(DESTDIR)$(PREFIX)/share/man/man1
-	install -m 644 mdp.1 $(DESTDIR)$(PREFIX)/share/man/man1/$(TARGET).1
+	install -m 644 smdp.1 $(DESTDIR)$(PREFIX)/share/man/man1/$(TARGET).1
 
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/bin/$(TARGET)

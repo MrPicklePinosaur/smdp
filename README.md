@@ -1,41 +1,27 @@
 
-## mdp - A command-line based markdown presentation tool.
+## smdp - A suckless command-line based markdown presentation tool
 
-![image](https://cloud.githubusercontent.com/assets/2237222/5810237/797c494c-a043-11e4-9dbd-959cab4055fa.gif)
+[NEW GIF COMING SOON]
 
----
+### BACKGROUND
+**smdp** is a fork of **[mdp](https://github.com/visit1985/mdp)**, the wonderful markdown presentation program. **smdp** is a set of modifications to my liking, namely, to make the project more suckless. Here's some notable differences:
+- configuration variables were abstracted out into a config.h variable (you can now change colors and keybindings to your liking!)
+- color fading and transparency was removed
+- patches are encouraged (i will be providing a couple myself)
 
-***How to get started:***
+### INSTALLATION
 
-mdp needs the ncursesw headers to compile.
-So make sure you have them installed:
+**smdp** needs the ncursesw headers to compile. Install based on your distro, and compile using:
 
-- on Raspbian (Raspberry Pi) you need `libncurses5-dev` and `libncursesw5-dev`
+```
+git clone https://github.com/MrPicklePinosaur/smdp.git
+cd smdp
+make
+make install
+smdp sample.md
+```
 
-Now download and install mdp:
-
-    $ git clone https://github.com/visit1985/mdp.git
-    $ cd mdp
-    $ make
-    $ make install
-    $ mdp sample.md
-
-- On Arch Linux, you can use the existing [package](https://www.archlinux.org/packages/community/x86_64/mdp/).
-- on Cygwin you can use the existing [package](https://cygwin.com/cgi-bin2/package-grep.cgi?grep=mdp.exe) from the setup program.
-- On Debian, you can use the existing [DEB package](https://tracker.debian.org/pkg/mdp-src), or run `apt-get install mdp`.
-- On FreeBSD, you can use the port [misc/mdp](http://www.freshports.org/misc/mdp).
-- On OS-X, use the existing [Homebrew Formula](http://brewformulas.org/Mdp) by running `brew install mdp`.
-- On Slackware, grab the SlackBuild here: (http://slackbuilds.org/apps/mdp/), or run `sbopkg -i mdp`.
-- On Ubuntu, you can use the existing [DEB package](https://launchpad.net/ubuntu/+source/mdp-src), or run `apt-get install mdp`.
-
-Most terminals support 256 colors only if the TERM variable is
-set correctly:
-
-    $ export TERM=xterm-256color
-
----
-
-***How to use it:***
+### USAGE
 
 Horizontal rulers are used as slide separator.
 
@@ -59,9 +45,7 @@ Supports headers prefixed by @ symbol.
 
 Review sample.md for more details.
 
----
-
-***Default controls:***
+### CONTROLS
 
 - h, j, k, l, Arrow keys,
     Space, Enter, Backspace,
@@ -72,18 +56,12 @@ Review sample.md for more details.
 - r - reload input file
 - q - exit
 
-
----
-
-***Configuration***:
+### CONFIGURATION
 
 A `config.h` configuration file is available in `include/`, change the settings you want and recompile.
 Colors, keybindings and list types are configurable as of now. Note that configuring colors only works in 8 color mode.
 
----
+### CREDITS
 
-***How to debug it:***
+Many kudos to the original authors and contributors of **mdp**. Once again, you can find the original project [here](https://github.com/visit1985/mdp).
 
-To make a debug version of `mdp`, just type:
-
-    $ make DEBUG=1

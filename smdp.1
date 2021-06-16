@@ -5,24 +5,28 @@
 .\"
 .
 .
-.TH MDP 1 "2016-04-02" "User Commands"
+.TH SMDP 1 "2016-04-02" "User Commands"
 .SH NAME
-mdp \- A command-line based
+smdp \- A suckless command-line based
 markdown presentation tool
 .SH SYNOPSIS
-.B mdp
+.B smdp
 .RI [ OPTION ].\|.\|.\|
 .RI [ FILE ]
 .
 .SH DESCRIPTION
-.B mdp
+.B smdp
 is a command-line program that allows you to make elegant presentations from
 .B markdown formatted
 .IR FILE s.
 .PP
 It is as easy as write your presentation content in the text editor of your
 preference and launch the presentation from the command-line.
-.
+.B smdp
+is a fork of
+.B mdp
+aimed to be more configurable and simple, please check out the original project too!
+
 .SH OPTIONS
 .SS "Input Control"
 .TP
@@ -79,9 +83,9 @@ MDP_LIST_HEAD3=' +- '
 .SH MARKDOWN FORMATTING
 For a complete list of supported markups, refer the sample presentation
 (sample.md) provided alongside
-.BR mdp ,\|
+.BR smdp ,\|
 or online available at
-.IR https://github.com/visit1985/mdp .
+.IR https://github.com/MrPicklePinosaur/smdp .
 .SS "Slides"
 The input
 .IR FILE
@@ -102,7 +106,7 @@ will be displayed at the moment the presentation is launched.
 A single
 .BR "<br>" ", " "<BR>" " or " "^"
 on an otherwise empty line signals
-.B mdp
+.B smdp
 to stop output of the current slide (stop point) and wait for a key-press by
 the user.
 .PP
@@ -110,7 +114,7 @@ This enables the user to display bullet points or list items one by one
 (line by line) or block by block.
 .
 .SS "Headers"
-.B mdp
+.B smdp
 supports header lines in the format of
 .BR @ "[DESCRIPTION] " [VALUE]
 The first two header lines are displayed as title and author in top and
@@ -128,7 +132,7 @@ As well as bold text, underlined text and in-line code.
 .SH COLOR SUPPORT
 Most terminals are able to display 256 colors these days. But some of them
 enable only 16 colors by default. To enjoy
-.BR mdp "'s"
+.BR smdp "'s"
 full capabilities, these terminals need to be signaled to enable 256 color
 mode. This is usually done by setting the TERM environment variable.
 .PP
@@ -157,14 +161,15 @@ This key is disabled if input was read from standard input.
 .TP
 .BR "q"
 Exit
-.BR mdp "."
+.BR smdp "."
 .
 .SH CUSTOMIZATION
-.B mdp
+.B smdp
 can be configured by modifying config.h and recompiling.
 .SH AUTHOR
 Written by Michael Goehler and others, see
 .IR https://github.com/visit1985/mdp/blob/master/AUTHORS "."
+Forked and modified by pinosaur.
 .SH COPYRIGHT
 Copyright (C) 2018 Michael Goehler
 .PP
