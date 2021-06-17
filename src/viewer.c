@@ -29,7 +29,7 @@
 #include "viewer.h"
 #include "config.h"
 
-int ncurses_display(deck_t *deck, int reload, int noreload, int slidenum, int nocodebg) {
+int ncurses_display(deck_t *deck, int reload, int noreload, int slidenum) {
 
     int c = 0;                // char
     int i = 0;                // iterate
@@ -149,10 +149,10 @@ int ncurses_display(deck_t *deck, int reload, int noreload, int slidenum, int no
         use_default_colors();
 
         init_pair(CP_FG, FG_COLOR, BG_COLOR);
-        init_pair(CP_BG, BG_COLOR, FG_COLOR);
         init_pair(CP_HEADER, HEADER_COLOR, BG_COLOR);
         init_pair(CP_BOLD, BOLD_COLOR, BG_COLOR);
         init_pair(CP_TITLE, TITLE_COLOR, BG_COLOR);
+        init_pair(CP_CODE, CODEFG_COLOR, CODEBG_COLOR);
 
         colors = 1;
     }
@@ -248,7 +248,7 @@ int ncurses_display(deck_t *deck, int reload, int noreload, int slidenum, int no
         // print lines
         while(line) {
             add_line(content, l + ((LINES - slide->lines_consumed - bar_top - bar_bottom) / 2),
-                     (COLS - max_cols) / 2, line, max_cols, colors, nocodebg);
+                     (COLS - max_cols) / 2, line, max_cols, colors);
 
             // raise stop counter if we pass a line having a stop bit
             if(CHECK_BIT(line->bits, IS_STOP))
@@ -404,7 +404,7 @@ void setup_list_strings(void)
     }
 }
 
-void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors, int nocodebg) {
+void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
 
     int i; // increment
     int offset = 0; // text offset
@@ -416,8 +416,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
         // fill rest off line with spaces if we are in a code block
         if(CHECK_BIT(line->bits, IS_CODE) && colors) {
-            if(colors && !nocodebg)
-                wattron(window, COLOR_PAIR(CP_BG));
+            wattron(window, COLOR_PAIR(CP_CODE));
             for(i = getcurx(window) - x; i < max_cols; i++)
                 wprintw(window, "%s", " ");
         }
@@ -450,7 +449,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->value[offset], colors, nocodebg);
+            inline_display(window, &line->text->value[offset], colors);
 
     // IS_UNORDERED_LIST_2
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
@@ -473,7 +472,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->value[offset], colors, nocodebg);
+            inline_display(window, &line->text->value[offset], colors);
 
     // IS_UNORDERED_LIST_1
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
@@ -491,7 +490,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->value[offset], colors, nocodebg);
+            inline_display(window, &line->text->value[offset], colors);
     }
 
     // IS_CODE
@@ -503,9 +502,9 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
             offset = CODE_INDENT;
         }
 
-        // reverse color for code blocks
-        if(colors && !nocodebg)
-            wattron(window, COLOR_PAIR(CP_BG));
+        // color for code block
+        if (colors)
+        wattron(window, COLOR_PAIR(CP_CODE));
 
         // print whole lines
         waddwstr(window, &line->text->value[offset]);
@@ -519,9 +518,9 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         // IS_QUOTE
         if(CHECK_BIT(line->bits, IS_QUOTE)) {
             while(line->text->value[offset] == '>') {
-                // print a reverse color block
+                // print a code block
                 if(colors) {
-                    wattron(window, COLOR_PAIR(CP_BG));
+                    wattron(window, COLOR_PAIR(CP_CODE));
                     wprintw(window, "%s", " ");
                     wattron(window, COLOR_PAIR(CP_FG));
                     wprintw(window, "%s", " ");
@@ -535,7 +534,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                     offset = next_word(line->text, offset);
             }
 
-            inline_display(window, &line->text->value[offset], colors, nocodebg);
+            inline_display(window, &line->text->value[offset], colors);
         } else {
 
             // IS_CENTER
@@ -568,10 +567,16 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
             // no line-wide markdown
             } else {
 
-                inline_display(window, &line->text->value[offset], colors, nocodebg);
+                inline_display(window, &line->text->value[offset], colors);
             }
         }
     }
+
+    // fill rest off line with spaces
+    // we only need this if the color is inverted (e.g. code-blocks)
+    if(CHECK_BIT(line->bits, IS_CODE))
+        for(i = getcurx(window) - x; i < max_cols; i++)
+            wprintw(window, "%s", " ");
 
     // reset to default color
     if(colors)
@@ -579,7 +584,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     wattroff(window, A_UNDERLINE);
 }
 
-void inline_display(WINDOW *window, const wchar_t *c, const int colors, int nocodebg) {
+void inline_display(WINDOW *window, const wchar_t *c, const int colors) {
     const static wchar_t *special = L"\\*_`!["; // list of interpreted chars
     const wchar_t *i = c; // iterator
     const wchar_t *start_link_name, *start_url;
@@ -697,8 +702,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
                             break;
                         // enable inline code
                         case L'`':
-                            if(colors && !nocodebg)
-                                wattron(window, COLOR_PAIR(CP_BG));
+                            wattron(window, COLOR_PAIR(CP_CODE));
                             break;
                         // do nothing for backslashes
                     }

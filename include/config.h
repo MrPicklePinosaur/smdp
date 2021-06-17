@@ -36,7 +36,6 @@ static const char *list_head1 = " +- ";
 static const char *list_head2 = " +- ";
 static const char *list_head3 = " +- ";
 
-#define FADE_DELAY 15000    // micro seconds
 #define GOTO_SLIDE_DELAY 5  // tenths of seconds
 
 // colors - you can only set in 8-bit color mode
@@ -56,6 +55,8 @@ static const char *list_head3 = " +- ";
 #define TITLE_COLOR     COLOR_YELLOW
 #define HEADER_COLOR    COLOR_BLUE
 #define BOLD_COLOR      COLOR_RED
+#define CODEFG_COLOR    COLOR_BLACK
+#define CODEBG_COLOR    COLOR_WHITE
 
 // keybindings
 static const int prev_slide_binding[] = {

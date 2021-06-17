@@ -4,7 +4,7 @@
 [NEW GIF COMING SOON]
 
 ### BACKGROUND
-**smdp** is a fork of **[mdp](https://github.com/visit1985/mdp)**, the wonderful markdown presentation program. **smdp** is a set of modifications to my liking, namely, to make the project more suckless. Here's some notable differences:
+**smdp** is a fork of **mdp** (find it [here](https://github.com/visit1985/mdp), the wonderful markdown presentation program. **smdp** is a set of modifications to my liking, namely, to make the project more suckless. Here's some notable differences:
 - configuration variables were abstracted out into a config.h variable (you can now change colors and keybindings to your liking!)
 - color fading and transparency was removed
 - patches are encouraged (i will be providing a couple myself)

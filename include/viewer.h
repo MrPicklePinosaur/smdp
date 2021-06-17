@@ -50,11 +50,11 @@
 #define CP_HEADER 2
 #define CP_BOLD   3
 #define CP_TITLE  4
-#define CP_BG     5 // CP_FG with foreground and background swapped
+#define CP_CODE   5
 
-int ncurses_display(deck_t *deck, int reload, int noreload, int slidenum, int nocodebg);
-void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors, int nocodebg);
-void inline_display(WINDOW *window, const wchar_t *c, const int colors, int nocodebg);
+int ncurses_display(deck_t *deck, int reload, int noreload, int slidenum);
+void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors);
+void inline_display(WINDOW *window, const wchar_t *c, const int colors);
 int int_length (int val);
 int get_slide_number(char init);
 void setup_list_strings(void);
